@@ -1,0 +1,15 @@
+# 아래 폴더들은 각자 독립 git 저장소(nested repo) — 이 상위 저장소는 관리하지 않는다.
+00_공용라이브러리/
+01_개발기록/
+32. Claude 개발표준/
+33. 중복코드 분석기/
+35. 기준서 작성 체계/
+36. program-dashboard/
+37. 운영관리/
+audit-kit/
+excel-contract-tools/
+wifi-remote-tools/
+
+# 세션/캐시 파일
+.claude/
+.ruff_cache/
