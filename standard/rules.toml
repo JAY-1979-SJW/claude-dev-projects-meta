@@ -228,6 +228,22 @@ severity = "improve"    # AST 로는 "존재 확인 직후 내용 검증 없이 
 check = { kind = "custom", name = "EXISTENCE-ONLY-GATING" }
 source = "이번 프로젝트 실측 사례 (2026-09-27, 존재만으로 오인해 무관한 프로젝트에서 오탐 발생) — 외부 근거 문서 없음"
 
+[[rule]]
+id = "ERR-08"
+title = "test_* 함수에서 `bad = [x for x in SRC if ...]; assert not bad` 류는 SRC 가 비어있지 않다는 별도 sanity assert 없이 쓰면 안 된다 (공허하게 항상 통과할 위험)"
+severity = "improve"    # AST 로는 "파생 소스가 정확히 같은 식일 때"만 sanity assert 를 찾아내는
+                         # 휴리스틱이라 오탐·미탐이 있을 수 있다 (ERR-07 과 같은 종류의 한계)
+check = { kind = "custom", name = "VACUOUS-COLLECTION-ASSERT" }
+source = "다른 프로젝트(01. haehan-ai-orchestrator) 실측 사례 (2026-09-29): FastAPI 0.137+ 가 include_router() 를 지연 평가로 바꾸면서 app.routes introspection 이 몇 달간 깨져 build_manifest() 가 항상 빈 리스트를 반환했는데, test_destructive_actions_never_auto_safe 의 'bad = [a for a in build_manifest() if ...]; assert not bad' 가 비교대상 0건으로 계속 공허하게 통과해 register/upload/setup/reset/publish 계열 위험 액션 15건이 SAFE(자동실행)로 오분류된 걸 못 잡고 있었음 — 외부 근거 문서 없음(이 프로젝트 자체의 실측 교훈)"
+
+[[rule]]
+id = "ERR-09"
+title = "테스트의 monkeypatch 가 안 먹히는 것 같으면, 그 상수/설정값을 다른 모듈이 독자적으로 다시 import 하고 있는지부터 의심한다 (이중 바인딩 파편화)"
+severity = "info"    # 자동 검사 불가 — 교차 모듈 데이터흐름 분석이 필요해 AST 휴리스틱 범위 밖. 진단
+                     # 가이드로만 남긴다(사람/AI 가 디버깅할 때 먼저 확인할 목록).
+check = { kind = "manual", how = "증상: monkeypatch.setattr(모듈A, '상수', 값) 을 했는데 특정 코드경로만 계속 옛 값을 쓰는 것처럼 보임. 확인 순서: (1) 그 상수를 쓰는 실제 함수가 `from 모듈A import 상수` 가 아니라 `from 모듈B import 상수` 처럼 다른 모듈에서 import 하는지 grep, (2) 모듈B 가 그 상수를 원본 모듈C 에서 다시 import 해 자기 것으로 굳혀놨는지 확인, (3) 실제 pytest 프로세스 안에서 두 모듈의 값을 직접 print 해 대조(추측 금지 — 이번 사례처럼 직접 찍어보기 전까지 두 경로가 갈라지는 걸 코드만 읽어서는 확신할 수 없었음)." }
+source = "cad-quantity-calculator 프로젝트 실측 사례 (2026-09-29, GitHub 이슈 #40): _core_path_resolvers.get_project_dir 가 _constants.PROJECTS_DIR 를 직접 재import 해, 테스트가 patch 한 _resolvers.PROJECTS_DIR 와 갈라짐 — project_identity.py 는 이미 두 값이 같아야 한다는 주석을 남겨뒀었는데 2026-09-25 리팩터가 그 전제를 깨뜨림. 프로젝트 생성 폴더가 두 위치로 쪼개져 discipline 하위폴더 생성 테스트 39건이 실패했음. 실제 pytest 프로세스 안에서 두 PROJECTS_DIR 값을 직접 print 해서야 확정함(코드만 읽어서는 원인을 못 찾음) — 외부 근거 문서 없음(이 프로젝트 자체의 실측 교훈)"
+
 # ---------------------------------------------------------------- 훅 판정 로그 태그 (LOG)
 # 아래 2개는 개별 정책이 아니라 py_stats.py 집계에 실제로 찍히는 "전체 판정" 로그 태그다.
 # 근거는 이미 문서화된 개별 조항들(STD-*, ERR-04)에 있고, 여기서는 py_stats 출력을 rules.toml과
