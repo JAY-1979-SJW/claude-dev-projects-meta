@@ -58,9 +58,19 @@ max-returns = 6
 max-statements = 50
 
 [lint.per-file-ignores]
-"tests/**" = ["ARG", "PLR", "PLC0415", "T20", "S"]
-"**/test_*.py" = ["ARG", "PLR", "PLC0415", "T20", "S"]
-"**/scripts/**" = ["T20"]
+"tests/**" = ["ARG", "PLR", "PLC0415", "T20", "S", "RUF012"]
+"**/test_*.py" = ["ARG", "PLR", "PLC0415", "T20", "S", "RUF012"]
+# RUF012(가변 기본값 클래스 속성) 추가 근거(01. haehan-ai-orchestrator, 2026-09-29 실측):
+# 39건 전수 확인 결과 전부 테스트용 상수 목록(IN_SCOPE_MODULES 등)이나 Fake/Mock 클래스의
+# 클래스 속성(FakeReport.cafes = [] 등) — 테스트 클래스는 보통 한 번만 인스턴스화되고
+# 이 속성들을 재대입하지 않아 인스턴스 간 공유로 인한 실제 위험이 없음. 다만 이건 애플리케이션
+# 코드에서는(같은 클래스가 여러 인스턴스로 반복 생성되면) 진짜 버그가 될 수 있어 tests/** 밖은
+# 여전히 잡는다(개별 사례는 ClassVar 로 의도 명시 — cdp_popup_manager.py 등).
+"**/scripts/**" = ["T20", "S"]   # tests/** 와 같은 이유로 S(보안) 완화 — B(bugbear)는 그대로 유지.
+# 실측(01. haehan-ai-orchestrator, 2026-09-29): scripts/** 264건이 전부 S110(try-except-pass) —
+# 그 프로젝트 자체 ruff.toml 은 scripts/**="S","B" 로 이미 완화해 둔 상태였고, 표준 번들에는
+# scripts/** 가 T20 만 있어 이 간극이 "치명" 오탐 265건 중 264건의 원인이었다. B는 tests/** 도
+# 완화하지 않는 카테고리라(가변 기본 인자 등은 위치와 무관하게 실제 버그) 여기서도 올리지 않는다.
 "**/cli.py" = ["T20"]                     # CLI 진입 모듈은 stdout 출력이 정상 동작
 "**/commands.py" = ["T20"]
 "**/__main__.py" = ["T20"]
