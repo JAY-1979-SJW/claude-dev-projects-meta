@@ -545,6 +545,13 @@ severity = "info"
 check = { kind = "custom", name = "COMMUNITY-FILES-PRESENT" }   # LICENSE/CONTRIBUTING.md/CODE_OF_CONDUCT.md/SECURITY.md 각각 존재 확인 — audit-kit checks.check_community_files_present 구현 예정
 source = "https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/about-community-profiles-for-public-repositories , https://www.contributor-covenant.org/version/2/1/code_of_conduct/"
 
+[[rule]]
+id = "OPS-17"
+title = "Docker 로 배포하는 서비스는 git HEAD 와 실제 컨테이너 코드의 드리프트를 검증하는 도구를 둔다 (Docker 배포가 있는 프로젝트만, 선택)"
+severity = "info"      # Docker 기반 프로덕션 배포가 있는 프로젝트에만 해당 — 로컬 전용 도구·라이브러리는 적용 대상 아님
+check = { kind = "custom", name = "DEPLOY-DRIFT-CHECK-PRESENT" }   # scripts/ops/deploy_drift_check.py(관례 경로) 존재 확인, 조건부(Dockerfile + docker-compose.yml 있는 프로젝트만) — audit-kit checks.check_deploy_drift_check_present 구현 예정
+source = "이번 프로젝트 실측 사례 (2026-09-29, g2b '복수예가' 데이터 오염 사고): 소스 수정을 커밋·push·CI green 까지 끝냈는데도 이미지 baked-in 파일(저장소 루트 .py)이 재빌드 없이는 반영되지 않아, 실제 프로덕션 컨테이너(g2b-api·g2b-scheduler·g2b-collector·bid-worker-*) 는 8시간 넘게 구버전 코드로 데이터를 계속 오염시켰다. git/CI 가 그린인 것이 '배포됐다'를 보장하지 않는데 이를 검증하는 도구가 전혀 없어 사고를 키웠다 — 외부 근거 문서 없음, g2b 의 scripts/ops/deploy_drift_check.py 가 참고 구현"
+
 # ---------------------------------------------------------------- 프론트엔드 (FE)
 # 2026-09-28: `30. 해한 AI 홈페이지`(Next.js/TSX 앱 4개) 감사 중 실제 버그(react-hooks/static-components,
 # react-hooks/set-state-in-effect, Next 16의 `next lint` 제거로 깨진 lint 스크립트)를 발견한 뒤 신설.
