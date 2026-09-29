@@ -1,0 +1,65 @@
+# 새 프로젝트용 pyproject.toml 템플릿 (PEP 621)
+# 사용법: 새 프로젝트 폴더로 복사한 뒤 name, description, dependencies를 수정한다.
+# 구조: src/<패키지>/, tests/, pyproject.toml
+# 설치: py -3.14 -m venv .venv  ->  .venv\Scripts\python -m pip install -e ".[dev]"
+
+[project]
+name = "my-project"
+version = "0.1.0"
+description = ""
+requires-python = ">=3.14"
+dependencies = [
+    # "openpyxl>=3.1",
+    # "haehan-common",   # 공용 라이브러리: pip install -e "..\00_공용라이브러리"
+]
+
+[project.optional-dependencies]
+dev = ["ruff", "mypy", "pylint", "pytest", "pytest-cov", "pytest-timeout", "pre-commit"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+extend = "../ruff.toml"      # 03. PYTHON 공통 규칙 상속
+target-version = "py314"
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unreachable = true
+mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = ["win32com.*", "pythoncom.*", "pyautocad.*", "openpyxl.*"]
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest]
+minversion = "9.0"
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config", "--import-mode=importlib"]
+timeout = 60                 # pytest-timeout: 무한 대기 방지 (ERR-05)
+# 경고를 오류로 (ERR-05). 서드파티 라이브러리의 경고는 아래처럼 개별로 예외 처리한다.
+filterwarnings = [
+    "error",
+    # "ignore::DeprecationWarning:some_third_party_module",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 70
+
+# ---------------------------------------------------------------- 중복 코드 (pylint R0801)
+[tool.pylint.similarities]
+min-similarity-lines = 6
+ignore-comments = true
+ignore-docstrings = true
+ignore-imports = true
+ignore-signatures = true

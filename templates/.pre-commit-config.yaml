@@ -1,0 +1,36 @@
+# 새 프로젝트용 pre-commit 설정 템플릿
+# 설치: py -m pre_commit install   /  전체 검사: py -m pre_commit run --all-files
+# 버전 갱신: py -m pre_commit autoupdate
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+        args: [--maxkb=2000]
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.9
+    hooks:
+      - id: ruff-check      # 반드시 ruff-format보다 먼저
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: pylint-duplicate-code
+        name: 중복 코드 검사 (pylint R0801)
+        entry: py -3.14 -m pylint --disable=all --enable=duplicate-code
+        language: system
+        types: [python]
+        require_serial: true
+      - id: mypy
+        name: 타입 검사 (mypy)
+        entry: py -3.14 -m mypy
+        language: system
+        types: [python]
+        require_serial: true

@@ -1,0 +1,17 @@
+# Claude Code 검색(Grep/Glob, ripgrep)에서 제외할 경로.
+# 중복 코드 검색 시 라이브러리·백업 코드가 섞이지 않게 한다. (설계서 3.4)
+venv/
+.venv/
+env/
+site-packages/
+__pycache__/
+node_modules/
+build/
+dist/
+*backup*/
+*_backup_*/
+*백업*/
+chrome-headless-shell-win64/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/

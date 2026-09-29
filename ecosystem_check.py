@@ -44,6 +44,37 @@ def run(cmd: list, cwd: Path) -> tuple[bool, str]:
     return ok, (proc.stdout + proc.stderr)[-4000:]
 
 
+def check_projects_root_mirrors_32() -> tuple[bool, str]:
+    """projects\\ 최상위(CLAUDE.md/ruff.toml/standard/docs_registry.toml/rules.toml)가
+    32 의 참조 원본(project/CLAUDE.md, project/ruff.toml, standard/*.toml)과 바이트 단위로
+    일치하는지 확인한다.
+
+    배경(2026-09-29): projects\\ 최상위가 32/project 의 사본을 들고 있어서(이 디렉터리에서
+    작업하는 세션이 CLAUDE.md 상속으로 03.PYTHON 공통 규칙을 자동으로 받게 하려는 의도),
+    두 곳이 반나절 만에 이미 어긋나 있었다(PROC-03, B008 FastAPI 예외, rules.toml 74줄
+    차이 등 실제로 확인됨) - 사람이 기억해서 손으로 diff 를 돌려야 잡히는 종류였다.
+    """
+    source = ROOT / "32. Claude 개발표준"
+    if not source.is_dir():
+        return True, "건너뜀: 32. Claude 개발표준 폴더 없음"
+    pairs = [
+        (source / "project" / "CLAUDE.md", ROOT / "CLAUDE.md"),
+        (source / "project" / "ruff.toml", ROOT / "ruff.toml"),
+        (source / "standard" / "rules.toml", ROOT / "standard" / "rules.toml"),
+        (source / "standard" / "docs_registry.toml", ROOT / "standard" / "docs_registry.toml"),
+        (source / "docs" / "개발표준_설계서.md", ROOT / "docs" / "개발표준_설계서.md"),
+    ]
+    mismatches = []
+    for src, dst in pairs:
+        if not dst.exists():
+            mismatches.append(f"{dst.relative_to(ROOT)} 없음")
+        elif src.read_bytes() != dst.read_bytes():
+            mismatches.append(f"{dst.relative_to(ROOT)} != {src}")
+    if mismatches:
+        return False, "\n".join(mismatches)
+    return True, f"{len(pairs)}개 파일 일치"
+
+
 def check_32_audit_kit_std_sync() -> tuple[bool, str]:
     """32 의 rules.toml/docs_registry.toml/ruff.toml <-> audit-kit 번들 동기화 + 규칙 ID 대응."""
     audit_kit = ROOT / "audit-kit"
@@ -66,6 +97,7 @@ def check_32_audit_kit_std_sync() -> tuple[bool, str]:
 
 
 CHECKS = {
+    "projects\\ 최상위 <-> 32/project 참조원본 (CLAUDE.md/ruff.toml/standard/docs)": check_projects_root_mirrors_32,
     "32 <-> audit-kit (rules.toml 동기화 + 규칙 ID 단일 출처)": check_32_audit_kit_std_sync,
     # 앞으로 추가할 결합 검사 자리 (예: 35 의 project-scope 유형 <-> audit-kit scaffolder-router 매핑,
     # 37 의 템플릿 <-> 32 의 OPS-* 조항 이름 일치 등) - 실제로 깨진 사례가 나오면 여기 추가한다.
