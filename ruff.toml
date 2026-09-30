@@ -84,6 +84,7 @@ max-statements = 50
 "**/tangle.py" = ["T20"]
 "**/ghcheck.py" = ["T20"]
 "**/baseline.py" = ["T20"]
+"**/cilocal.py" = ["T20"]
 "**/newproj.py" = ["T20"]
 
 [format]
