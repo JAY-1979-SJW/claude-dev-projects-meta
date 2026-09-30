@@ -867,3 +867,46 @@ notes = [
     "이 프로젝트에서는 windows_auth_popup_monitor.py 의 알림 폴백 경로 1곳에서만 사용하는 선택적 의존성",
 ]
 verified = "AI 추가, 사람 확인 전 (2026-09-29, 01. haehan-ai-orchestrator DOC-02 정리 세션) — 서브패키지 설치 요구사항 미확인, 사람 확인 필요"
+
+
+# ------------------------------------------------------------ 브라우저 자동화·웹 프런트엔드 (2026-09-30 추가)
+# 05. g2b 사이트 전체 점검(Playwright CDP)과 UI 하이드레이션 오류 조사에서 공식 문서를 열어 확인한 것만 적었다.
+# React/Next.js/MDN 은 import 로 강제하지 않는 참조용 항목이다(이 hook 은 파이썬 저장만 본다).
+[[lib]]
+name = "playwright"
+imports = ["playwright"]
+pip = "playwright"
+docs = ["https://playwright.dev/python/docs/api/class-browsertype#browser-type-connect-over-cdp"]
+domains = ["playwright.dev"]
+notes = [
+    "connect_over_cdp: 이미 떠 있는 Chromium 계열 브라우저에 CDP 로 붙는다. 공식 문서: Playwright 프로토콜 연결보다 충실도가 크게 낮고 일부 기능이 동작하지 않을 수 있음(Playwright 인자로 띄운 브라우저가 아니면)",
+    "기존 브라우저의 기본 컨텍스트는 browser.contexts[0] 으로 접근한다(새로 만들어지지 않음). 연결 timeout 기본 30초",
+    "같은 브라우저를 여러 도구가 CDP 로 쓰면 포트가 겹치지 않게 --remote-debugging-port 를 도구마다 다르게 지정할 것(이 PC: 9222 orchestrator, 9333 Electron, 9444 g2b 점검)",
+]
+verified = "AI 추가, 사람 확인 전 (2026-09-30, 05. g2b 사이트 점검 세션) — connect_over_cdp 문서만 확인, 나머지 API 는 미확인"
+
+[[lib]]
+name = "React hydration (react-dom / Next.js)"
+imports = []
+docs = ["https://react.dev/reference/react-dom/client/hydrateRoot", "https://nextjs.org/docs/messages/react-hydration-error"]
+domains = ["react.dev", "nextjs.org"]
+notes = [
+    "서버가 만든 HTML 과 브라우저 첫 렌더링 결과는 같아야 한다. 다르면 하이드레이션 오류(React #418)이고 버그로 고쳐야 한다(React 가 복구하더라도)",
+    "원인(공식 문서): 렌더링 중 typeof window 분기, window/localStorage 같은 브라우저 API, Date 같은 시간 의존 값, 잘못된 HTML 중첩, 브라우저 확장, HTML 을 바꾸는 CDN",
+    "수정 방법(공식 문서): useEffect 로 마운트 뒤에만 다른 내용 표시(2단계 렌더링), dynamic(..., { ssr: false }), 피할 수 없는 차이는 suppressHydrationWarning(한 단계만 적용되는 탈출구)",
+    "운영 빌드는 오류 메시지가 압축돼 원인을 알 수 없다 — 로컬 next dev 에서 재현하면 서버/클라이언트 차이를 그대로 보여 준다",
+    "react.dev/errors/418 주소는 2026-09-30 확인 시 404 였다: 오류 해독 문서로 쓰지 말 것",
+]
+verified = "AI 추가, 사람 확인 전 (2026-09-30, 05. g2b 사이트 점검 세션) — hydrateRoot·Next 안내 문서 fetch ok"
+
+[[lib]]
+name = "MDN HTML content categories"
+imports = []
+docs = ["https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Content_categories"]
+domains = ["developer.mozilla.org"]
+notes = [
+    "요소는 콘텐츠 범주(어디에 놓을 수 있나)와 콘텐츠 모델(무엇을 담을 수 있나)이 따로 있다. p 는 구문(phrasing) 콘텐츠만, div 는 흐름(flow) 콘텐츠를 담는다",
+    "상호작용(interactive) 콘텐츠: button, details, embed, iframe, label, select, textarea. 조건부: href 있는 a, controls 있는 audio/video, type 이 hidden 이 아닌 input",
+    "투명 콘텐츠 모델 요소(ins, del 등)를 통해 부모의 제한을 우회할 수 없다 — 예: ul 의 직계 자식은 li 만(del 로 감싼 li 는 무효)",
+]
+verified = "AI 추가, 사람 확인 전 (2026-09-30, 05. g2b 사이트 점검 세션) — Content_categories 문서 fetch ok"
