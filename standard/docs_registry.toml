@@ -910,3 +910,42 @@ notes = [
     "투명 콘텐츠 모델 요소(ins, del 등)를 통해 부모의 제한을 우회할 수 없다 — 예: ul 의 직계 자식은 li 만(del 로 감싼 li 는 무효)",
 ]
 verified = "AI 추가, 사람 확인 전 (2026-09-30, 05. g2b 사이트 점검 세션) — Content_categories 문서 fetch ok"
+
+
+# ------------------------------------------------------------ 성능 진단 (2026-09-30 추가, 05. g2b 성능 점검 세션)
+# 공식 문서를 WebFetch 로 열어 확인한 내용만 적었다. import 로 강제하지 않는 참조용 항목(imports 비어 있음).
+[[lib]]
+name = "PostgreSQL pg_stat_statements"
+imports = []
+docs = ["https://www.postgresql.org/docs/current/pgstatstatements.html"]
+domains = ["postgresql.org"]
+notes = [
+    "모든 SQL 의 계획·실행 통계를 쿼리(정규화)별로 집계한다: total_exec_time, mean_exec_time, calls, rows, shared_blks_hit 등(ms 단위)",
+    "켜려면 postgresql.conf 의 shared_preload_libraries='pg_stat_statements' 와 compute_query_id=on 이 필요하고 서버 재시작이 필요하다. 그 뒤 각 DB 에서 CREATE EXTENSION pg_stat_statements",
+    "쿼리 텍스트·queryid 는 슈퍼유저 또는 pg_read_all_stats 권한이 있는 롤만 다른 사용자의 것을 볼 수 있다",
+    "pg_stat_statements.track_planning 은 기본 off, pg_stat_statements.max 기본 5000",
+]
+verified = "AI 추가, 사람 확인 전 (2026-09-30, 05. g2b 성능 점검 세션) — 공식 문서 fetch ok"
+
+[[lib]]
+name = "Next.js ESLint (eslint-config-next)"
+imports = []
+docs = ["https://nextjs.org/docs/app/api-reference/config/eslint"]
+domains = ["nextjs.org"]
+notes = [
+    "Next.js 16 부터 `next lint` 명령과 next.config 의 eslint 옵션이 제거됐다 — ESLint CLI(npx eslint .) 와 eslint.config.mjs(flat config) 를 직접 쓴다",
+    "eslint-config-next 는 @next/eslint-plugin-next 와 eslint-plugin-react, eslint-plugin-react-hooks 의 recommended 규칙을 포함한다. core-web-vitals 는 Core Web Vitals 관련 규칙을 경고에서 오류로 올린다",
+    "TypeScript 는 eslint-config-next/typescript 를 함께 spread 한다. .next/**, out/**, build/**, next-env.d.ts 는 기본 무시 대상",
+]
+verified = "AI 추가, 사람 확인 전 (2026-09-30, 05. g2b 성능 점검 세션) — 공식 문서 fetch ok"
+
+[[lib]]
+name = "Core Web Vitals measurement tools (web.dev)"
+imports = []
+docs = ["https://web.dev/articles/vitals-tools"]
+domains = ["web.dev"]
+notes = [
+    "실사용(field) 데이터: CrUX(공개 데이터셋), PageSpeed Insights(공개 URL 만 가능), web-vitals 라이브러리(직접 수집). 실험실(lab): Lighthouse(모의 스로틀링이라 실제 사용자 수치와 다를 수 있음), Chrome DevTools Performance 패널",
+    "Lighthouse 는 개발·디버깅용 진단 도구이고 실사용 Core Web Vitals 를 대신하지 않는다. 로그인이 필요한 화면은 PageSpeed Insights/CrUX 로 측정할 수 없다",
+]
+verified = "AI 추가, 사람 확인 전 (2026-09-30, 05. g2b 성능 점검 세션) — 공식 문서 fetch ok"
