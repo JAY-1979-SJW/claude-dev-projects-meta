@@ -13,3 +13,7 @@ wifi-remote-tools/
 # 세션/캐시 파일
 .claude/
 .ruff_cache/
+
+# 도구 실행 산출물 (커밋 대상 아님)
+audit-reports/
+__pycache__/
